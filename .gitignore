@@ -1,0 +1,3 @@
+# exclude files in directory config & crypto-config
+/config
+/crypto-config

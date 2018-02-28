@@ -1,0 +1,51 @@
+Create Channel (one peer)
+    no tls:
+        (docker exec peer_container )peer channel create \
+            -o orderer.example.com:7050\
+            -c channel\
+            -f /path/to/transaction_file
+    tls:
+        (docker exec peer_container )peer channel create\
+            -o orderer.example.com:7050\
+            -c channel\
+            -f /path/to/transaction_file\
+            --tls\
+            --cafile /path/to/CA_file
+Join Channel (all peers)
+    (docker exec peer_container )peer channel join\
+        -b /path/to/genesis_block
+Update config block (one peer per organization)
+    (docker exec peer_container )peer channel update\
+        -o orderer.example.com:7050\
+        -c channel_name\
+        -f /path/to/config_transaction\
+        --tls\
+        --cafile /path/to/CA_file
+Install chaincode (one peer)
+    (docker exec peer_container )peer chaincode install\
+        -n chaincode_name\
+        -v version_number\
+        -p path_to_chaincode
+Instantiate chaincode
+    (docker exec peer_container )peer chaincode instantiate\
+        -o orderer.example.com:7050\
+        -C channel_name\
+        --tls\
+        --cafile /path/to/CA_file\
+        -n chaincode_name\
+        -v version_number\
+        -c contructor\ # '{"Args":["query","a"]}'
+        -P policy
+Query chaincode
+    (docker exec peer_container )peer chaincode query\
+        -C channel_name\
+        -n chaincode_name\
+        -c constructor
+Invoke chaincode
+    (docker exec peer_container )peer chaincode invoke\
+        -o orderer.example.com:7050\
+        -C channel_name\
+        --tls\
+        --cafile /path/to/CA_file\
+        -n chaincode_name\
+        -c constructor

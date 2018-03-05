@@ -25,3 +25,5 @@ docker exec peer0.org1.example.com peer channel create -o orderer.example.com:70
 # Join peer0.org1.example.com to the channel.
 docker exec peer0.org1.example.com peer channel join -b mychannel.block
 docker exec peer1.org1.example.com peer channel join -b mychannel.block
+docker exec peer0.org2.example.com peer channel join -b mychannel.block
+docker exec peer1.org2.example.com peer channel join -b mychannel.block

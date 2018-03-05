@@ -82,6 +82,49 @@ services:
     networks:
       - basic
 
+  peer0.org2.example.com:
+    container_name: peer0.org2.example.com
+    extends:
+      file: base/docker-compose-base.yml
+      service: peer-base.org2.example.com
+    environment:
+      - CORE_PEER_ID=peer0.org2.example.com
+      - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+    ports:
+      - 7251:7051
+      - 7253:7053
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/peer/
+    working_dir: /etc/hyperledger/configtx/
+    depends_on:
+      - orderer.example.com
+      - couchdb0
+    networks:
+      - basic
+
+  peer1.org2.example.com:
+    container_name: peer1.org2.example.com
+    extends:
+      file: base/docker-compose-base.yml
+      service: peer-base.org2.example.com
+    environment:
+      - CORE_PEER_ID=peer1.org2.example.com
+      - CORE_PEER_ADDRESS=peer1.org2.example.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
+    ports:
+      - 7351:7051
+      - 7353:7053
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/:/etc/hyperledger/peer/
+    working_dir: /etc/hyperledger/configtx/
+    depends_on:
+      - orderer.example.com
+      - couchdb1
+      - peer0.org2.example.com
+    networks:
+      - basic
+
   couchdb0:
     container_name: couchdb0
     extends:
@@ -99,6 +142,26 @@ services:
       service: couchdb-base
     ports:
       - 6084:5984
+    networks:
+      - basic
+
+  couchdb2:
+    container_name: couchdb2
+    extends:
+      file: base/docker-compose-base.yml
+      service: couchdb-base
+    ports:
+      - 6184:5984
+    networks:
+      - basic
+
+  couchdb3:
+    container_name: couchdb3
+    extends:
+      file: base/docker-compose-base.yml
+      service: couchdb-base
+    ports:
+      - 6284:5984
     networks:
       - basic
 

@@ -43,6 +43,18 @@ services:
     networks:
       - basic
 
+  peer-base.org2.example.com:
+    extends:
+      file: peer-base.yml
+      service: peer-base
+    environment:
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@org2.example.com/msp
+    volumes:
+      - ../crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/users/
+    networks:
+      - basic
+
   couchdb-base:
     image: hyperledger/fabric-couchdb
     environment:

@@ -189,6 +189,11 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
         Department: "ABC",
         RoomNumber: args[7],
         BedNumber: args[8],
+		/*
+		Department: args[7],
+		RoomNumber: args[8],
+		BedNumber: args[9],
+		*/
     }
 
     patientAsBytes, _ := APIstub.GetState(args[0])
@@ -198,12 +203,13 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
     patientAsBytes, _ = json.Marshal(patient)
     APIstub.PutState(args[0], patientAsBytes)
 
-    nRecords, _ := APIstub.GetState("numRecords")
-    numRecords := binary.BigEndian.Uint64(nRecords)
-    recordsAsBytes, _ := APIstub.GetState("Records"+numRecords)
-    recordAsBytes, _ = json.Marshal(record)
-    recordsAsBytes = append(recordsAsBytes, recordAsBytes)
-    APIstub.PutState("Records"+numRecords, recordsAsBytes)
+    nRecords, _ := APIstub.GetState("numRecords") //[]byte,error
+    numRecordsInUInt := binary.BigEndian.Uint64(nRecords)
+	numRecordsInString := strconv.Itoa(int(numRecordsInUInt))
+    recordsAsBytes, _ := APIstub.GetState("Records"+numRecordsInString)
+    recordAsBytes, _ := json.Marshal(record) //[]byte,error
+    recordsAsBytes = append(recordsAsBytes, recordAsBytes...) //add... to append two byte array
+    APIstub.PutState("Records"+numRecordsInString, recordsAsBytes)
 	return shim.Success(recordAsBytes)
 }
 
@@ -212,41 +218,47 @@ func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []st
     year, _ := strconv.Atoi(args[1])
     month, _ := strconv.Atoi(args[2])
     day, _ := strconv.Atoi(args[3])
+	yesno, _ := strconv.ParseBool(args[5])
+	
 
     report := Report{
         Date: time.Date(
             year,
-            month,
+            time.Month(month), //change int to Month type
             day,
             0,0,0,0,
             time.UTC,
         ),
         Type: args[4],
-        Yesno: args[5],
+        Yesno:  yesno, //change string "true" to bool "true" 
     }
 
     patientAsBytes, _ := APIstub.GetState(args[0])
     patient := Patient{}
     json.Unmarshal(patientAsBytes, &patient)
     patient.Reports = append(patient.Reports, report)
-    patientAsBytes, _ := json.Marshal(patient)
+    patientAsBytes, _ = json.Marshal(patient)
     APIstub.PutState(args[0], patientAsBytes)
 
-    nReports := APIsutb.GetState("numReports")
-    numReports := binary.BigEndian.Uint64(nReports)
-    reportsAsBytes, _ := APIStub.GetState("Reports"+numReports)
+    nReports, _ := APIstub.GetState("numReports")
+    numReportsInUInt := binary.BigEndian.Uint64(nReports)
+	numReportsInString := strconv.Itoa(int(numReportsInUInt))
+    reportsAsBytes, _ := APIstub.GetState("Reports"+numReportsInString)
     reportAsBytes, _ := json.Marshal(report)
-    reportsAsBytes = append(reportsAsBytes, reportAsBytes)
-    APIstub.PutState("Reports"+numReports, reportsAsBytes)
+    reportsAsBytes = append(reportsAsBytes, reportAsBytes...)
+    APIstub.PutState("Reports"+numReportsInString, reportsAsBytes)
 	return shim.Success(reportAsBytes)
 }
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
+	//setup timezone
+	secondsEastOfUTC := int((8 * time.Hour).Seconds())
+	hongkong := time.FixedZone("Hong Kong Time", secondsEastOfUTC)
 	patients := []Patient{
 		Patient{
             HKID: "Y000000(1)",
             Name: "Aa",
-            Birth: time.Date(1996, 7, 3, 0, 0, 0, 0, time.UTC+8),
+            Birth: time.Date(1996, time.Month(7), 3, 0, 0, 0, 0, hongkong),
             Gender: Male,
             Records: []Record{},
             Reports: []Report{},
@@ -254,7 +266,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		Patient{
             HKID: "Y000001(2)",
             Name: "Bb",
-            Birth: time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC+8),
+            Birth: time.Date(2018, time.Month(1), 1, 0, 0, 0, 0, hongkong),
             Gender: Male,
             Records: []Record{},
             Reports: []Report{},
@@ -262,7 +274,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		Patient{
             HKID: "Y000002(3)",
             Name: "Cc",
-            Birth: time.Date(2010, 1, 1, 0, 0, 0, 0, time.UTC+8),
+            Birth: time.Date(2010, time.Month(1), 1, 0, 0, 0, 0, hongkong),
             Gender: Female,
             Records: []Record{},
             Reports: []Report{},
@@ -270,24 +282,26 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		Patient{
             HKID: "Y000003(4)",
             Name: "Dd",
-            Birth: time.Date(20, 1, 1, 0, 0, 0, 0, time.UTC+8),
+            Birth: time.Date(2000, time.Month(1), 1, 0, 0, 0, 0, hongkong),
             Gender: Male,
             Records: []Record{},
             Reports: []Report{},
         },
 	}
 
-	i := 0
+	var i int = 0
 	for i < len(patients) {
 		fmt.Println("i is ", i)
 		patientAsBytes, _ := json.Marshal(patients[i])
-		APIstub.PutState("Patient."+patients[i][HKID], PatientAsBytes)
+		APIstub.PutState("Patient." + patients[i].HKID, patientAsBytes)
 		fmt.Println("Added", patients[i])
 		i = i + 1
 	}
-
-    APIstub.PutState("numRecords", '0')
-    APIstub.PutState("numReports", '0')
+	
+	bs := make([]byte, 4)
+    binary.LittleEndian.PutUint64(bs, 0)
+    APIstub.PutState("numRecords", bs)
+    APIstub.PutState("numReports", bs)
 	return shim.Success(nil)
 }
 

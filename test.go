@@ -204,12 +204,15 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
     APIstub.PutState(args[0], patientAsBytes)
 
     nRecords, _ := APIstub.GetState("numRecords") //[]byte,error
-    numRecordsInUInt := binary.BigEndian.Uint64(nRecords)
-	numRecordsInString := strconv.Itoa(int(numRecordsInUInt))
-    recordsAsBytes, _ := APIstub.GetState("Records"+numRecordsInString)
-    recordAsBytes, _ := json.Marshal(record) //[]byte,error
-    recordsAsBytes = append(recordsAsBytes, recordAsBytes...) //add... to append two byte array
-    APIstub.PutState("Records"+numRecordsInString, recordsAsBytes)
+    buf := bytes.NewBuffer(nRecords)
+    var numRecords uint64
+    binary.Read(buf, binary.LittleEndian, &numRecords)
+    numRecords = numRecords + 1
+    
+    recordAsBytes, _ := json.Marshal(record)
+    APIstub.PutState("Records"+strconv.FormatUint(numRecords,10), recordAsBytes)
+    binary.Write(buf, binary.LittleEndian, numRecords)
+    APIstub.PutState("numRecords", buf.Bytes())
 	return shim.Success(recordAsBytes)
 }
 
@@ -241,12 +244,15 @@ func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []st
     APIstub.PutState(args[0], patientAsBytes)
 
     nReports, _ := APIstub.GetState("numReports")
-    numReportsInUInt := binary.BigEndian.Uint64(nReports)
-	numReportsInString := strconv.Itoa(int(numReportsInUInt))
-    reportsAsBytes, _ := APIstub.GetState("Reports"+numReportsInString)
+    buf := bytes.NewBuffer(nReports)
+    var numReports uint64
+    binary.Read(buf, binary.LittleEndian, &numReports)
+    numReports = numReports + 1
+
     reportAsBytes, _ := json.Marshal(report)
-    reportsAsBytes = append(reportsAsBytes, reportAsBytes...)
-    APIstub.PutState("Reports"+numReportsInString, reportsAsBytes)
+    APIstub.PutState("Reports"+strconv.FormatUint(numReports,10), reportAsBytes)
+    binary.Write(buf, binary.LittleEndian, numReports)
+    APIstub.PutState("numReports", buf.Bytes())
 	return shim.Success(reportAsBytes)
 }
 
@@ -298,20 +304,21 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		i = i + 1
 	}
 	
-	bs := make([]byte, 4)
-    binary.LittleEndian.PutUint64(bs, 0)
-    APIstub.PutState("numRecords", bs)
-    APIstub.PutState("numReports", bs)
+    buf := new(bytes.Buffer)
+    binary.Write(buf, binary.LittleEndian, 0)
+    ba := buf.Bytes()
+    APIstub.PutState("numRecords", ba)
+    APIstub.PutState("numReports", ba)
 	return shim.Success(nil)
 }
 
 func (s *SmartContract) query(APIstub shim.ChaincodeStubInterface, query []string) sc.Response {
 
     fmt.Println("Querying...") 
-    resultsIterator, err := APIstub.getQueryResult(query)
+    resultsIterator, err := APIstub.GetQueryResult(query[0])
     defer resultsIterator.Close()
     if err != nil {
-        return nil, err
+        return shim.Error(err.Error())
     }
 
     var buffer bytes.Buffer
@@ -321,7 +328,7 @@ func (s *SmartContract) query(APIstub shim.ChaincodeStubInterface, query []strin
         queryResponse,
         err := resultsIterator.Next()
         if err != nil {
-            return nil, err
+            return shim.Error(err.Error())
         }
         
         if delimit == true {
@@ -341,7 +348,7 @@ func (s *SmartContract) query(APIstub shim.ChaincodeStubInterface, query []strin
 
 func (s *SmartContract) queryAllPatients(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-    resultsIterator, err := APIstub.GetStateByRange()
+    resultsIterator, err := APIstub.GetStateByRange("", "")
 	if err != nil {
 		return shim.Error(err.Error())
 	}

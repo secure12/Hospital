@@ -101,6 +101,9 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
     if function == "get" {
         return s.get(APIstub, args)
     } else
+    if function == "getAll" {
+        return s.queryAllPatients(APIstub)
+    } else
     if function == "putPatient" {
         return s.putPatient(APIstub, args)
     } else
@@ -116,11 +119,12 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) get(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
+    fmt.Print("ABC")
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	patientAsBytes, _ := APIstub.GetState(args[0])
+	patientAsBytes, _ := APIstub.GetState("Patient."+args[0])
 	return shim.Success(patientAsBytes)
 }
 
@@ -150,7 +154,7 @@ func (s *SmartContract) putPatient(APIstub shim.ChaincodeStubInterface, args []s
     }
 
     patientAsBytes, _ := json.Marshal(patient)
-    APIstub.PutState(args[0], patientAsBytes)
+    APIstub.PutState("Patient."+args[0], patientAsBytes)
 	return shim.Success(patientAsBytes)
 }
 
@@ -196,12 +200,12 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
 		*/
     }
 
-    patientAsBytes, _ := APIstub.GetState(args[0])
+    patientAsBytes, _ := APIstub.GetState("Patient."+args[0])
     patient := Patient{}
     json.Unmarshal(patientAsBytes, &patient)
     patient.Records = append(patient.Records, record)
     patientAsBytes, _ = json.Marshal(patient)
-    APIstub.PutState(args[0], patientAsBytes)
+    APIstub.PutState("Patient."+args[0], patientAsBytes)
 
     nRecords, _ := APIstub.GetState("numRecords") //[]byte,error
     buf := bytes.NewBuffer(nRecords)
@@ -236,12 +240,12 @@ func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []st
         Yesno:  yesno, //change string "true" to bool "true" 
     }
 
-    patientAsBytes, _ := APIstub.GetState(args[0])
+    patientAsBytes, _ := APIstub.GetState("Patient."+args[0])
     patient := Patient{}
     json.Unmarshal(patientAsBytes, &patient)
     patient.Reports = append(patient.Reports, report)
     patientAsBytes, _ = json.Marshal(patient)
-    APIstub.PutState(args[0], patientAsBytes)
+    APIstub.PutState("Patient."+args[0], patientAsBytes)
 
     nReports, _ := APIstub.GetState("numReports")
     buf := bytes.NewBuffer(nReports)

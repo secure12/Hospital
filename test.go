@@ -95,7 +95,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
     if function == "initLedger" {
         return s.initLedger(APIstub)
     } else
-	if function == "query" {
+    if function == "query" {
         return s.query(APIstub, args)
     } else
     if function == "get" {
@@ -120,9 +120,9 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 func (s *SmartContract) get(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
     fmt.Print("ABC")
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
+    if len(args) != 1 {
+        return shim.Error("Incorrect number of arguments. Expecting 1")
+    }
 
 	patientAsBytes, _ := APIstub.GetState("Patient."+args[0])
 	return shim.Success(patientAsBytes)
@@ -166,6 +166,10 @@ func (s *SmartContract) putPatient(APIstub shim.ChaincodeStubInterface, args []s
  *  BedNumber
  */
 func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 9 {
+		return shim.Error("Incorrect number of arguments. Expecting 9")
+	}
 
     yearFrom, _ := strconv.Atoi(args[1])
     monthFrom, _ := strconv.Atoi(args[2])
@@ -221,6 +225,10 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
 }
 
 func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
 
     year, _ := strconv.Atoi(args[1])
     month, _ := strconv.Atoi(args[2])

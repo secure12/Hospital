@@ -31,27 +31,39 @@ services:
     networks:
       - basic
 
-  peer-base.org1.example.com:
+  peer-base.ha.example.com:
     extends:
       file: peer-base.yml
       service: peer-base
     environment:
-      - CORE_PEER_LOCALMSPID=Org1MSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@org1.example.com/msp
+      - CORE_PEER_LOCALMSPID=HAMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@ha.example.com/msp
     volumes:
-      - ../crypto-config/peerOrganizations/org1.example.com/users:/etc/hyperledger/users/
+      - ../crypto-config/peerOrganizations/ha.example.com/users:/etc/hyperledger/users/
     networks:
       - basic
 
-  peer-base.org2.example.com:
+  peer-base.pubhos1.example.com:
     extends:
       file: peer-base.yml
       service: peer-base
     environment:
-      - CORE_PEER_LOCALMSPID=Org2MSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@org2.example.com/msp
+      - CORE_PEER_LOCALMSPID=PubHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@pubhos1.example.com/msp
     volumes:
-      - ../crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/users/
+      - ../crypto-config/peerOrganizations/pubhos1.example.com/users:/etc/hyperledger/users/
+    networks:
+      - basic
+
+  peer-base.prihos1.example.com:
+    extends:
+      file: peer-base.yml
+      service: peer-base
+    environment:
+      - CORE_PEER_LOCALMSPID=PriHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@prihos1.example.com/msp
+    volumes:
+      - ../crypto-config/peerOrganizations/prihos1.example.com/users:/etc/hyperledger/users/
     networks:
       - basic
 

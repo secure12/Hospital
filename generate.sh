@@ -22,22 +22,51 @@ fi
 
 # generate genesis block for orderer
 mkdir config
-configtxgen -profile OneOrgOrdererGenesis -outputBlock ./config/genesis.block
+configtxgen -profile ThreeOrgOrdererGenesis -outputBlock ./config/genesis.block
 if [ "$?" -ne 0 ]; then
   echo "Failed to generate orderer genesis block..."
   exit 1
 fi
 
 # generate channel configuration transaction
-configtxgen -profile OneOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID $CHANNEL_NAME
+configtxgen -profile ThreeOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID $CHANNEL_NAME
 if [ "$?" -ne 0 ]; then
   echo "Failed to generate channel configuration transaction..."
   exit 1
 fi
 
 # generate anchor peer transaction
-configtxgen -profile OneOrgChannel -outputAnchorPeersUpdate ./config/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
+configtxgen -profile ThreeOrgChannel -outputAnchorPeersUpdate ./config/HAMSPanchors.tx -channelID $CHANNEL_NAME -asOrg HAMSP
 if [ "$?" -ne 0 ]; then
-  echo "Failed to generate anchor peer update for Org1MSP..."
+  echo "Failed to generate anchor peer update for HAMSP..."
+  exit 1
+fi
+
+# generate anchor peer transaction
+configtxgen -profile ThreeOrgChannel -outputAnchorPeersUpdate ./config/PubHos1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PubHos1MSP
+if [ "$?" -ne 0 ]; then
+  echo "Failed to generate anchor peer update for PubHos1MSP..."
+  exit 1
+fi
+
+# generate anchor peer transaction
+configtxgen -profile ThreeOrgChannel -outputAnchorPeersUpdate ./config/PriHos1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PriHos1MSP
+if [ "$?" -ne 0 ]; then
+  echo "Failed to generate anchor peer update for PriHos1MSP..."
+  exit 1
+fi
+
+CHANNEL_NAME=privatechannel
+# generate channel configuration transaction
+configtxgen -profile PrivateOrgChannel -outputCreateChannelTx ./config/privatechannel.tx -channelID $CHANNEL_NAME
+if [ "$?" -ne 0 ]; then
+  echo "Failed to generate channel configuration transaction..."
+  exit 1
+fi
+
+# generate anchor peer transaction
+configtxgen -profile PrivateOrgChannel -outputAnchorPeersUpdate ./config/PriHos1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PriHos1MSP
+if [ "$?" -ne 0 ]; then
+  echo "Failed to generate anchor peer update for PriHos1MSP..."
   exit 1
 fi

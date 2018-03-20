@@ -368,7 +368,7 @@ func (s *SmartContract) queryAllPatients(APIstub shim.ChaincodeStubInterface) sc
 
 	// buffer is a JSON array containing QueryResults
 	var buffer bytes.Buffer
-	buffer.WriteString("[")
+	buffer.WriteString("\n[\n")
 
 	delimit := false
 	for resultsIterator.HasNext() {
@@ -380,15 +380,15 @@ func (s *SmartContract) queryAllPatients(APIstub shim.ChaincodeStubInterface) sc
 		if delimit == true {
 			buffer.WriteString(",")
 		}
-		buffer.WriteString("{")
+		buffer.WriteString("    {\n        ")
 		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString(": ")
+		buffer.WriteString(":\n            ")
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
+		buffer.WriteString("    }\n")
 		delimit = true
 	}
-	buffer.WriteString("]")
+	buffer.WriteString("]\n")
 
 	fmt.Println("- queryAllPatients:\n", buffer.String())
 

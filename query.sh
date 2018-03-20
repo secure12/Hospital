@@ -2,8 +2,11 @@ FILE="test.go"
 if [ "$2" != "invoke" ] && [ "$2" != "query" ]; then
     cat <<EOF
 Usage:
-    ./query.sh  invoke  cliName/peerName    channelName chaincodeName   chaincodeFunction   chaincodeArguments
-    ./query.sh  query   cliName/peerName    channelName chaincodeName   chaincodeFunction   chaincodeArguments
+    ./query.sh  cliName/peerName    invoke  channelName chaincodeName   chaincodeFunction   chaincodeArguments
+    ./query.sh  cliName/peerName    query   channelName chaincodeName   chaincodeFunction   chaincodeArguments
+
+Example:
+    ./query.sh  cli2    invoke  privatechannel  test    initLedger
 
 Chaincode Functions:
 EOF

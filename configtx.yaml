@@ -20,26 +20,41 @@ Profiles:
             Organizations:
                 - *OrdererOrg
         Consortiums:
-            SampleConsortium:
+            PublicConsortium:
+                Organizations:
+                    - *HA
+                    - *PubHos1
+            PrivateConsortium:
+                Organizations:
+                    - *PriHos1
+            CommonConsortium:
                 Organizations:
                     - *HA
                     - *PubHos1
                     - *PriHos1
-    ThreeOrgChannel:
-        Consortium: SampleConsortium
+
+    PublicOrgChannel:
+        Consortium: PublicConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *HA
                 - *PubHos1
-                - *PriHos1
 
     PrivateOrgChannel:
-        Consortium: SampleConsortium
+        Consortium: PrivateConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *PriHos1
+
+    CommonOrgChannel:
+        Consortium: CommonConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *HA
+                - *PubHos1
                 - *PriHos1
 
 ################################################################################

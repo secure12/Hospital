@@ -11,5 +11,6 @@ set -ev
 docker-compose -f docker-compose.yml stop
 yes|docker-compose -f docker-compose.yml rm
 sudo rm -rf ./volumes/
+docker rm -f $(docker ps -aqf name=dev)
 docker rm -f $(docker ps -aqf name=peer)
 docker rm -f $(docker ps -aqf name=couchdb)

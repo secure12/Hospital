@@ -21,19 +21,20 @@ export FABRIC_START_TIMEOUT=5
 sleep ${FABRIC_START_TIMEOUT}
 
 # Create the channel
-docker exec ce.ha.example.com peer channel create -o orderer.example.com:7050 -c mychannel -f channel.tx --tls --cafile /etc/hyperledger/orderers/tlscacerts/tlsca.example.com-cert.pem
-docker exec ce.ha.example.com peer channel create -o orderer.example.com:7050 -c privatechannel -f privatechannel.tx --tls --cafile /etc/hyperledger/orderers/tlscacerts/tlsca.example.com-cert.pem
+docker exec ce.ha.example.com peer channel create -o orderer.example.com:7050 -c publicchannel -f publicchannel.tx --tls --cafile /etc/hyperledger/orderers/tlscacerts/tlsca.example.com-cert.pem
+docker exec ce.prihos1.example.com peer channel create -o orderer.example.com:7050 -c privatechannel -f privatechannel.tx --tls --cafile /etc/hyperledger/orderers/tlscacerts/tlsca.example.com-cert.pem
+docker exec ce.ha.example.com peer channel create -o orderer.example.com:7050 -c commonchannel -f commonchannel.tx --tls --cafile /etc/hyperledger/orderers/tlscacerts/tlsca.example.com-cert.pem
 
 # Join peer0.org1.example.com to the channel.
-docker exec ce.ha.example.com peer channel join -b mychannel.block
-docker exec ce.pubhos1.example.com peer channel join -b mychannel.block
-docker exec surgery.pubhos1.example.com peer channel join -b mychannel.block
-docker exec ir.pubhos1.example.com peer channel join -b mychannel.block
-docker exec ce.prihos1.example.com peer channel join -b mychannel.block
-docker exec surgery.prihos1.example.com peer channel join -b mychannel.block
-docker exec ir.prihos1.example.com peer channel join -b mychannel.block
+docker exec ce.ha.example.com peer channel join -b publicchannel.block
+docker exec ce.pubhos1.example.com peer channel join -b publicchannel.block
+docker exec surgery.pubhos1.example.com peer channel join -b publicchannel.block
+docker exec ir.pubhos1.example.com peer channel join -b publicchannel.block
 
-docker exec ce.ha.example.com peer channel join -b privatechannel.block
 docker exec ce.prihos1.example.com peer channel join -b privatechannel.block
 docker exec surgery.prihos1.example.com peer channel join -b privatechannel.block
 docker exec ir.prihos1.example.com peer channel join -b privatechannel.block
+
+docker exec ce.ha.example.com peer channel join -b commonchannel.block
+docker exec ce.pubhos1.example.com peer channel join -b commonchannel.block
+docker exec ce.prihos1.example.com peer channel join -b commonchannel.block

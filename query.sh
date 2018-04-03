@@ -1,12 +1,12 @@
 #!/bin/bash
-FILE="test.go"
+FILE="$3.go"
 if [ $# -lt 4 ]; then
     cat <<EOF
 Usage:
     ./query.sh  cliName/peerName    channelName     chaincodeName   chaincodeFunction   chaincodeArguments
 
 Example:
-    ./query.sh  cli2                privatechannel  test            initLedger
+    ./query.sh  cli.ce.prihos1      privatechannel  private         getAll
 
 Chaincode Functions:
 EOF

@@ -10,7 +10,7 @@ networks:
 
 services:
   orderer-base.example.com:
-    image: hyperledger/fabric-orderer
+    image: hyperledger/fabric-orderer:x86_64-1.1.0
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -31,18 +31,6 @@ services:
     networks:
       - basic
 
-  peer-base.ha.example.com:
-    extends:
-      file: peer-base.yml
-      service: peer-base
-    environment:
-      - CORE_PEER_LOCALMSPID=HAMSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@ha.example.com/msp
-    volumes:
-      - ../crypto-config/peerOrganizations/ha.example.com/users:/etc/hyperledger/users/
-    networks:
-      - basic
-
   peer-base.pubhos1.example.com:
     extends:
       file: peer-base.yml
@@ -52,6 +40,18 @@ services:
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@pubhos1.example.com/msp
     volumes:
       - ../crypto-config/peerOrganizations/pubhos1.example.com/users:/etc/hyperledger/users/
+    networks:
+      - basic
+
+  peer-base.pubhos2.example.com:
+    extends:
+      file: peer-base.yml
+      service: peer-base
+    environment:
+      - CORE_PEER_LOCALMSPID=PubHos2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/users/Admin@pubhos2.example.com/msp
+    volumes:
+      - ../crypto-config/peerOrganizations/pubhos2.example.com/users:/etc/hyperledger/users/
     networks:
       - basic
 
@@ -68,7 +68,7 @@ services:
       - basic
 
   couchdb-base:
-    image: hyperledger/fabric-couchdb
+    image: hyperledger/fabric-couchdb:x86_64-0.4.7
     environment:
       - COUCHDB_USER=
       - COUCHDB_PASSWORD=

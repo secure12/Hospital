@@ -35,15 +35,15 @@ if [ "$?" -ne 0 ]; then
   exit 1
 fi
 # generate anchor peer transaction
-configtxgen -profile PublicOrgChannel -outputAnchorPeersUpdate ./config/HAMSPanchors.tx -channelID $CHANNEL_NAME -asOrg HAMSP
-if [ "$?" -ne 0 ]; then
-  echo "Failed to generate anchor peer update for HAMSP..."
-  exit 1
-fi
-# generate anchor peer transaction
 configtxgen -profile PublicOrgChannel -outputAnchorPeersUpdate ./config/PubHos1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PubHos1MSP
 if [ "$?" -ne 0 ]; then
   echo "Failed to generate anchor peer update for PubHos1MSP..."
+  exit 1
+fi
+# generate anchor peer transaction
+configtxgen -profile PublicOrgChannel -outputAnchorPeersUpdate ./config/PubHos2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PubHos2MSP
+if [ "$?" -ne 0 ]; then
+  echo "Failed to generate anchor peer update for PubHos2MSP..."
   exit 1
 fi
 
@@ -69,15 +69,15 @@ if [ "$?" -ne 0 ]; then
   exit 1
 fi
 # generate anchor peer transaction
-configtxgen -profile CommonOrgChannel -outputAnchorPeersUpdate ./config/HAMSPanchors.tx -channelID $CHANNEL_NAME -asOrg HAMSP
-if [ "$?" -ne 0 ]; then
-  echo "Failed to generate anchor peer update for HAMSP..."
-  exit 1
-fi
-# generate anchor peer transaction
 configtxgen -profile CommonOrgChannel -outputAnchorPeersUpdate ./config/PubHos1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PubHos1MSP
 if [ "$?" -ne 0 ]; then
   echo "Failed to generate anchor peer update for PubHos1MSP..."
+  exit 1
+fi
+# generate anchor peer transaction
+configtxgen -profile CommonOrgChannel -outputAnchorPeersUpdate ./config/PubHos2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg PubHos2MSP
+if [ "$?" -ne 0 ]; then
+  echo "Failed to generate anchor peer update for PubHos2MSP..."
   exit 1
 fi
 # generate anchor peer transaction
@@ -87,5 +87,5 @@ if [ "$?" -ne 0 ]; then
   exit 1
 fi
 
-KEY=$(cd crypto-config/peerOrganizations/ha.example.com/ca/ && ls *_sk)
+KEY=$(cd crypto-config/peerOrganizations/pubhos1.example.com/ca/ && ls *_sk) ################## DONT KNOW
 sed -i "/FABRIC_CA_SERVER_CA_KEYFILE/c\      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/$KEY" docker-compose.yml

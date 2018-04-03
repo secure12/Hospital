@@ -33,12 +33,12 @@ import (
 	"encoding/json"
 	"encoding/binary"
 	"fmt"
-    "strconv"
+  "strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 
-    "time"
+  "time"
 )
 
 // Define the Smart Contract structure
@@ -112,11 +112,16 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
     } else
     if function == "putReport" {
         return s.putReport(APIstub, args)
+    } else
+    if function == "request" {
+        return s.requestPatient(APIstub)
     }
 
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
+/** HKID
+ */
 func (s *SmartContract) get(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
     fmt.Print("ABC")
@@ -216,7 +221,7 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
     var numRecords uint64
     binary.Read(buf, binary.LittleEndian, &numRecords)
     numRecords = numRecords + 1
-    
+
     recordAsBytes, _ := json.Marshal(record)
     APIstub.PutState("Records"+strconv.FormatUint(numRecords,10), recordAsBytes)
     binary.Write(buf, binary.LittleEndian, numRecords)
@@ -224,6 +229,12 @@ func (s *SmartContract) putRecord(APIstub shim.ChaincodeStubInterface, args []st
 	return shim.Success(recordAsBytes)
 }
 
+/** HKID
+ *  Datefrom
+ *  DateTo
+ *  Report Type
+ *  verified
+ */
 func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 6 {
@@ -234,7 +245,7 @@ func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []st
     month, _ := strconv.Atoi(args[2])
     day, _ := strconv.Atoi(args[3])
 	yesno, _ := strconv.ParseBool(args[5])
-	
+
 
     report := Report{
         Date: time.Date(
@@ -245,7 +256,7 @@ func (s *SmartContract) putReport(APIstub shim.ChaincodeStubInterface, args []st
             time.UTC,
         ),
         Type: args[4],
-        Yesno:  yesno, //change string "true" to bool "true" 
+        Yesno:  yesno, //change string "true" to bool "true"
     }
 
     patientAsBytes, _ := APIstub.GetState("Patient."+args[0])
@@ -315,7 +326,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		fmt.Println("Added", patients[i])
 		i = i + 1
 	}
-	
+
     buf := new(bytes.Buffer)
     binary.Write(buf, binary.LittleEndian, 0)
     ba := buf.Bytes()
@@ -326,7 +337,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 
 func (s *SmartContract) query(APIstub shim.ChaincodeStubInterface, query []string) sc.Response {
 
-    fmt.Println("Querying...") 
+    fmt.Println("Querying...")
     resultsIterator, err := APIstub.GetQueryResult(query[0])
     defer resultsIterator.Close()
     if err != nil {
@@ -342,7 +353,7 @@ func (s *SmartContract) query(APIstub shim.ChaincodeStubInterface, query []strin
         if err != nil {
             return shim.Error(err.Error())
         }
-        
+
         if delimit == true {
             buffer.WriteString(",")
         }
@@ -378,22 +389,50 @@ func (s *SmartContract) queryAllPatients(APIstub shim.ChaincodeStubInterface) sc
 		}
 		// Add a comma before array members, suppress it for the first array member
 		if delimit == true {
-			buffer.WriteString(",")
+			buffer.WriteString(",\n")
 		}
 		buffer.WriteString("    {\n        ")
 		buffer.WriteString(queryResponse.Key)
 		buffer.WriteString(":\n            ")
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("    }\n")
+		buffer.WriteString("\n    }")
 		delimit = true
 	}
-	buffer.WriteString("]\n")
+	buffer.WriteString("\n]")
 
 	fmt.Println("- queryAllPatients:\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }
+
+func (s *SmartContract) requestPatient(APIstub shim.ChaincodeStubInterface) sc.Response {
+
+    patientInBytes, _ := APIstub.GetState("Y000000(1)")
+    return shim.Success(patientInBytes)
+}
+
+// func (t *EncCC) Encrypter(stub shim.ChaincodeStubInterface, args []string, encKey, IV []byte) pb.Response {
+// 	// create the encrypter entity - we give it an ID, the bccsp instance, the key and (optionally) the IV
+// 	ent, err := entities.NewAES256EncrypterEntity("ID", t.bccspInst, encKey, IV)
+// 	if err != nil {
+// 		return shim.Error(fmt.Sprintf("entities.NewAES256EncrypterEntity failed, err %s", err))
+// 	}
+//
+// 	if len(args) != 2 {
+// 		return shim.Error("Expected 2 parameters to function Encrypter")
+// 	}
+//
+// 	key := args[0]
+// 	patientInBytes, _ := APIstub.GetState("Y000000(1)")
+//
+// 	// here, we encrypt cleartextValue and assign it to key
+// 	err = encryptAndPutState(stub, ent, key, patientInBytes)
+// 	if err != nil {
+// 		return shim.Error(fmt.Sprintf("encryptAndPutState failed, err %+v", err))
+// 	}
+// 	return shim.Success(nil)
+// }
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
@@ -403,4 +442,12 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error creating new Smart Contract: %s", err)
 	}
+}
+
+func toChaincodeArgs(args ...string) [][]byte {
+	bargs := make([][]byte, len(args))
+	for i, arg := range args {
+		bargs[i] = []byte(arg)
+	}
+	return bargs
 }

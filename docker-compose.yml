@@ -10,17 +10,17 @@ networks:
 
 services:
   ca.example.com:
-    image: hyperledger/fabric-ca
+    image: hyperledger/fabric-ca:x86_64-1.1.0
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.example.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.ha.example.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/78132564a951e8540d0ecf3e43a5d9ba1a9f10a827b0282ed4f89129d6473f4c_sk
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/pubhos1.pubhos1.example.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ee438b847aecbfb99beba26861e2f918433eed05b2d6b15e9c3c2b7eded79b69_sk
     ports:
       - "7054:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ./crypto-config/peerOrganizations/ha.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.example.com
     networks:
       - basic
@@ -33,53 +33,33 @@ services:
     ports:
       - 7050:7050
     volumes:
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/ce.ha.example.com/:/etc/hyperledger/ha
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/ce.pubhos1.example.com/:/etc/hyperledger/pubhos1
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/surgery.pubhos1.example.com/:/etc/hyperledger/pubhos1
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/ir.pubhos1.example.com/:/etc/hyperledger/pubhos1
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/ce.prihos1.example.com/:/etc/hyperledger/prihos1
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/surgery.prihos1.example.com/:/etc/hyperledger/prihos1
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/ir.prihos1.example.com/:/etc/hyperledger/prihos1
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/icu.pubhos1.example.com/:/etc/hyperledger/pubhos1
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/surgery.pubhos1.example.com/:/etc/hyperledger/pubhos1
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/ir.pubhos1.example.com/:/etc/hyperledger/pubhos1
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/icu.pubhos2.example.com/:/etc/hyperledger/pubhos2
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/surgery.pubhos2.example.com/:/etc/hyperledger/pubhos2
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/ir.pubhos2.example.com/:/etc/hyperledger/pubhos2
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/icu.prihos1.example.com/:/etc/hyperledger/prihos1
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/surgery.prihos1.example.com/:/etc/hyperledger/prihos1
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/ir.prihos1.example.com/:/etc/hyperledger/prihos1
     working_dir: /etc/hyperledger/configtx/
     networks:
       - basic
 
-  ce.ha.example.com:
-    container_name: ce.ha.example.com
-    extends:
-      file: base/docker-compose-base.yml
-      service: peer-base.ha.example.com
-    environment:
-      - CORE_PEER_ID=ce.ha.example.com
-      - CORE_PEER_ADDRESS=ce.ha.example.com:7051
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
-    ports:
-      - 7051:7051
-      - 7053:7053
-    volumes:
-      - ./crypto-config/peerOrganizations/ha.example.com/peers/ce.ha.example.com/:/etc/hyperledger/peer/
-    working_dir: /etc/hyperledger/configtx/
-    depends_on:
-      - orderer.example.com
-      - couchdb0
-    networks:
-      - basic
-
-
-  ce.pubhos1.example.com:
-    container_name: ce.pubhos1.example.com
+  icu.pubhos1.example.com:
+    container_name: icu.pubhos1.example.com
     extends:
       file: base/docker-compose-base.yml
       service: peer-base.pubhos1.example.com
     environment:
-      - CORE_PEER_ID=ce.pubhos1.example.com
-      - CORE_PEER_ADDRESS=ce.pubhos1.example.com:7051
+      - CORE_PEER_ID=icu.pubhos1.example.com
+      - CORE_PEER_ADDRESS=icu.pubhos1.example.com:7051
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
     ports:
       - 8051:7051
       - 8053:7053
     volumes:
-      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/ce.pubhos1.example.com/:/etc/hyperledger/peer/
+      - ./crypto-config/peerOrganizations/pubhos1.example.com/peers/icu.pubhos1.example.com/:/etc/hyperledger/peer/
     working_dir: /etc/hyperledger/configtx/
     depends_on:
       - orderer.example.com
@@ -105,7 +85,7 @@ services:
     depends_on:
       - orderer.example.com
       - couchdb2
-      - ce.pubhos1.example.com
+      - icu.pubhos1.example.com
     networks:
       - basic
 
@@ -127,28 +107,93 @@ services:
     depends_on:
       - orderer.example.com
       - couchdb3
-      - ce.pubhos1.example.com
+      - icu.pubhos1.example.com
     networks:
       - basic
 
-  ce.prihos1.example.com:
-    container_name: ce.prihos1.example.com
+  icu.pubhos2.example.com:
+    container_name: icu.pubhos2.example.com
     extends:
       file: base/docker-compose-base.yml
-      service: peer-base.prihos1.example.com
+      service: peer-base.pubhos2.example.com
     environment:
-      - CORE_PEER_ID=ce.prihos1.example.com
-      - CORE_PEER_ADDRESS=ce.prihos1.example.com:7051
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb4:5984
+      - CORE_PEER_ID=icu.pubhos2.example.com
+      - CORE_PEER_ADDRESS=icu.pubhos2.example.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
     ports:
       - 9051:7051
       - 9053:7053
     volumes:
-      - ./crypto-config/peerOrganizations/prihos1.example.com/peers/ce.prihos1.example.com/:/etc/hyperledger/peer/
+      - ./crypto-config/peerOrganizations/pubhos2.example.com/peers/icu.pubhos2.example.com/:/etc/hyperledger/peer/
     working_dir: /etc/hyperledger/configtx/
     depends_on:
       - orderer.example.com
       - couchdb4
+    networks:
+      - basic
+
+  surgery.pubhos2.example.com:
+    container_name: surgery.pubhos2.example.com
+    extends:
+      file: base/docker-compose-base.yml
+      service: peer-base.pubhos2.example.com
+    environment:
+      - CORE_PEER_ID=surgery.pubhos2.example.com
+      - CORE_PEER_ADDRESS=surgery.pubhos2.example.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+    ports:
+      - 9151:7051
+      - 9153:7053
+    volumes:
+      - ./crypto-config/peerOrganizations/pubhos2.example.com/peers/surgery.pubhos2.example.com/:/etc/hyperledger/peer/
+    working_dir: /etc/hyperledger/configtx/
+    depends_on:
+      - orderer.example.com
+      - couchdb5
+      - icu.pubhos2.example.com
+    networks:
+      - basic
+
+  ir.pubhos2.example.com:
+    container_name: ir.pubhos2.example.com
+    extends:
+      file: base/docker-compose-base.yml
+      service: peer-base.pubhos2.example.com
+    environment:
+      - CORE_PEER_ID=ir.pubhos2.example.com
+      - CORE_PEER_ADDRESS=ir.pubhos2.example.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
+    ports:
+      - 9251:7051
+      - 9253:7053
+    volumes:
+      - ./crypto-config/peerOrganizations/pubhos2.example.com/peers/ir.pubhos2.example.com/:/etc/hyperledger/peer/
+    working_dir: /etc/hyperledger/configtx/
+    depends_on:
+      - orderer.example.com
+      - couchdb6
+      - icu.pubhos2.example.com
+    networks:
+      - basic
+
+  icu.prihos1.example.com:
+    container_name: icu.prihos1.example.com
+    extends:
+      file: base/docker-compose-base.yml
+      service: peer-base.prihos1.example.com
+    environment:
+      - CORE_PEER_ID=icu.prihos1.example.com
+      - CORE_PEER_ADDRESS=icu.prihos1.example.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb4:5984
+    ports:
+      - 10051:7051
+      - 10053:7053
+    volumes:
+      - ./crypto-config/peerOrganizations/prihos1.example.com/peers/icu.prihos1.example.com/:/etc/hyperledger/peer/
+    working_dir: /etc/hyperledger/configtx/
+    depends_on:
+      - orderer.example.com
+      - couchdb7
     networks:
       - basic
 
@@ -162,15 +207,15 @@ services:
       - CORE_PEER_ADDRESS=surgery.prihos1.example.com:7051
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb5:5984
     ports:
-      - 9151:7051
-      - 9153:7053
+      - 10151:7051
+      - 10153:7053
     volumes:
       - ./crypto-config/peerOrganizations/prihos1.example.com/peers/surgery.prihos1.example.com/:/etc/hyperledger/peer/
     working_dir: /etc/hyperledger/configtx/
     depends_on:
       - orderer.example.com
-      - couchdb5
-      - ce.prihos1.example.com
+      - couchdb8
+      - icu.prihos1.example.com
     networks:
       - basic
 
@@ -184,15 +229,15 @@ services:
       - CORE_PEER_ADDRESS=ir.prihos1.example.com:7051
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb6:5984
     ports:
-      - 9251:7051
-      - 9253:7053
+      - 10251:7051
+      - 10253:7053
     volumes:
       - ./crypto-config/peerOrganizations/prihos1.example.com/peers/ir.prihos1.example.com/:/etc/hyperledger/peer/
     working_dir: /etc/hyperledger/configtx/
     depends_on:
       - orderer.example.com
-      - couchdb6
-      - ce.prihos1.example.com
+      - couchdb9
+      - icu.prihos1.example.com
     networks:
       - basic
 
@@ -266,54 +311,268 @@ services:
     networks:
       - basic
 
-  cli:
-    container_name: cli
-    image: hyperledger/fabric-tools
+  couchdb7:
+    container_name: couchdb7
+    extends:
+      file: base/docker-compose-base.yml
+      service: couchdb-base
+    ports:
+      - 6684:5984
+    networks:
+      - basic
+
+  couchdb8:
+    container_name: couchdb8
+    extends:
+      file: base/docker-compose-base.yml
+      service: couchdb-base
+    ports:
+      - 6784:5984
+    networks:
+      - basic
+
+  couchdb9:
+    container_name: couchdb9
+    extends:
+      file: base/docker-compose-base.yml
+      service: couchdb-base
+    ports:
+      - 6884:5984
+    networks:
+      - basic
+
+  cli.icu.pubhos1:
+    container_name: cli.icu.pubhos1
+    image: hyperledger/fabric-tools:x86_64-1.1.0
     tty: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
-      - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=ce.pubhos1.example.com:7051
+      - CORE_PEER_ID=cli.icu.pubhos1
+      - CORE_PEER_ADDRESS=icu.pubhos1.example.com:7051
       - CORE_PEER_LOCALMSPID=PubHos1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/users/Admin@pubhos1.example.com/msp
       - CORE_CHAINCODE_KEEPALIVE=10
       ########## TLS ##########
       - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/peers/ce.pubhos1.example.com/tls/ca.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/peers/icu.pubhos1.example.com/tls/ca.crt
     working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
       - ./../chaincode/:/opt/gopath/src/github.com/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/client/:/opt/gopath/src/myprj/
+      - ./volumes/pubhos1/:/opt/gopath/src/
     networks:
       - basic
 
-  cli2:
-    container_name: cli2
-    image: hyperledger/fabric-tools
+  cli.surgery.pubhos1:
+    container_name: cli.surgery.pubhos1
+    image: hyperledger/fabric-tools:x86_64-1.1.0
     tty: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
-      - CORE_PEER_ID=cli2
-      - CORE_PEER_ADDRESS=ce.prihos1.example.com:7051
-      - CORE_PEER_LOCALMSPID=PriHos1MSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/users/Admin@prihos1.example.com/msp
+      - CORE_PEER_ID=cli.surgery.pubhos1
+      - CORE_PEER_ADDRESS=surgery.pubhos1.example.com:7051
+      - CORE_PEER_LOCALMSPID=PubHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/users/Admin@pubhos1.example.com/msp
       - CORE_CHAINCODE_KEEPALIVE=10
       ########## TLS ##########
       - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/peers/ce.prihos1.example.com/tls/ca.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/peers/surgery.pubhos1.example.com/tls/ca.crt
     working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
       - ./../chaincode/:/opt/gopath/src/github.com/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/client/:/opt/gopath/src/myprj/
+      - ./volumes/pubhos1/:/opt/gopath/src/
+    networks:
+      - basic
+
+  cli.ir.pubhos1:
+    container_name: cli.ir.pubhos1
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.ir.pubhos1
+      - CORE_PEER_ADDRESS=ir.pubhos1.example.com:7051
+      - CORE_PEER_LOCALMSPID=PubHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/users/Admin@pubhos1.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos1.example.com/peers/ir.pubhos1.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/pubhos1/:/opt/gopath/src/
+
+    networks:
+      - basic
+
+  cli.icu.pubhos2:
+    container_name: cli.icu.pubhos2
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.icu.pubhos2
+      - CORE_PEER_ADDRESS=icu.pubhos2.example.com:7051
+      - CORE_PEER_LOCALMSPID=PubHos2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos2.example.com/users/Admin@pubhos2.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos2.example.com/peers/icu.pubhos2.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/pubhos2/:/opt/gopath/src/
+    networks:
+      - basic
+
+  cli.surgery.pubhos2:
+    container_name: cli.surgery.pubhos2
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.surgery.pubhos2
+      - CORE_PEER_ADDRESS=surgery.pubhos2.example.com:7051
+      - CORE_PEER_LOCALMSPID=PubHos2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos2.example.com/users/Admin@pubhos2.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos2.example.com/peers/surgery.pubhos2.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/pubhos2/:/opt/gopath/src/
+    networks:
+      - basic
+
+  cli.ir.pubhos2:
+    container_name: cli.ir.pubhos2
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.ir.pubhos2
+      - CORE_PEER_ADDRESS=ir.pubhos2.example.com:7051
+      - CORE_PEER_LOCALMSPID=PubHos2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos2.example.com/users/Admin@pubhos2.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/pubhos2.example.com/peers/ir.pubhos2.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/pubhos2/:/opt/gopath/src/
+
+    networks:
+      - basic
+
+  cli.icu.prihos1:
+    container_name: cli.icu.prihos1
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.icu.prihos1
+      - CORE_PEER_ADDRESS=icu.prihos1.example.com:7051
+      - CORE_PEER_LOCALMSPID=PriHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/users/Admin@prihos1.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/peers/icu.prihos1.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/prihos1/:/opt/gopath/src/
+    networks:
+      - basic
+
+  cli.surgery.prihos1:
+    container_name: cli.surgery.prihos1
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.surgery.prihos1
+      - CORE_PEER_ADDRESS=surgery.prihos1.example.com:7051
+      - CORE_PEER_LOCALMSPID=PriHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/users/Admin@prihos1.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/peers/surgery.prihos1.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/prihos1/:/opt/gopath/src/
+    networks:
+      - basic
+
+  cli.ir.prihos1:
+    container_name: cli.ir.prihos1
+    image: hyperledger/fabric-tools:x86_64-1.1.0
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli.ir.prihos1
+      - CORE_PEER_ADDRESS=ir.prihos1.example.com:7051
+      - CORE_PEER_LOCALMSPID=PriHos1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/users/Admin@prihos1.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+      ########## TLS ##########
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer/crypto/peerOrganizations/prihos1.example.com/peers/ir.prihos1.example.com/tls/ca.crt
+    working_dir: /opt/gopath/src/ #/opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
+      - ./volumes/prihos1/:/opt/gopath/src/
     networks:
       - basic

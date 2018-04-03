@@ -22,15 +22,15 @@ Profiles:
         Consortiums:
             PublicConsortium:
                 Organizations:
-                    - *HA
                     - *PubHos1
+                    - *PubHos2
             PrivateConsortium:
                 Organizations:
                     - *PriHos1
             CommonConsortium:
                 Organizations:
-                    - *HA
                     - *PubHos1
+                    - *PubHos2
                     - *PriHos1
 
     PublicOrgChannel:
@@ -38,8 +38,8 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *HA
                 - *PubHos1
+                - *PubHos2
 
     PrivateOrgChannel:
         Consortium: PrivateConsortium
@@ -53,8 +53,8 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *HA
                 - *PubHos1
+                - *PubHos2
                 - *PriHos1
 
 ################################################################################
@@ -80,17 +80,6 @@ Organizations:
         # MSPDir is the filesystem path which contains the MSP configuration
         MSPDir: crypto-config/ordererOrganizations/example.com/msp
 
-    - &HA
-        Name: HAMSP
-
-        ID: HAMSP
-
-        MSPDir: crypto-config/peerOrganizations/ha.example.com/msp
-
-        AnchorPeers:
-            - Host: ce.ha.example.com
-              Port: 7051
-
     - &PubHos1
         Name: PubHos1MSP
 
@@ -99,7 +88,18 @@ Organizations:
         MSPDir: crypto-config/peerOrganizations/pubhos1.example.com/msp
 
         AnchorPeers:
-            - Host: ce.pubhos1.example.com
+            - Host: icu.pubhos1.example.com
+              Port: 7051
+
+    - &PubHos2
+        Name: PubHos2MSP
+
+        ID: PubHos2MSP
+
+        MSPDir: crypto-config/peerOrganizations/pubhos2.example.com/msp
+
+        AnchorPeers:
+            - Host: icu.pubhos2.example.com
               Port: 7051
 
     - &PriHos1
@@ -110,7 +110,7 @@ Organizations:
         MSPDir: crypto-config/peerOrganizations/prihos1.example.com/msp
 
         AnchorPeers:
-            - Host: ce.prihos1.example.com
+            - Host: icu.prihos1.example.com
               Port: 7051
 
 ################################################################################

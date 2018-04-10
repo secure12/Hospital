@@ -361,9 +361,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/pubhos1/:/opt/gopath/src/
     networks:
       - basic
 
@@ -387,9 +386,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/pubhos1/:/opt/gopath/src/
     networks:
       - basic
 
@@ -413,10 +411,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/pubhos1/:/opt/gopath/src/
-
     networks:
       - basic
 
@@ -440,9 +436,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/pubhos2/:/opt/gopath/src/
     networks:
       - basic
 
@@ -466,9 +461,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/pubhos2/:/opt/gopath/src/
     networks:
       - basic
 
@@ -492,10 +486,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/pubhos2/:/opt/gopath/src/
-
     networks:
       - basic
 
@@ -519,9 +511,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/prihos1/:/opt/gopath/src/
     networks:
       - basic
 
@@ -545,9 +536,8 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/prihos1/:/opt/gopath/src/
     networks:
       - basic
 
@@ -571,8 +561,7 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ./../chaincode/:/opt/gopath/src/github.com/
+      - ./chaincode/:/opt/gopath/src/
       - ./crypto-config:/etc/hyperledger/fabric/peer/crypto/
-      - ./volumes/prihos1/:/opt/gopath/src/
     networks:
       - basic

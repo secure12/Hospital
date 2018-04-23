@@ -1,35 +1,10 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
-/*
- * The sample smart contract for documentation topic:
- * Writing Your First Blockchain Application
- */
-
 package main
 
-/* Imports
- * 4 utility libraries for formatting, handling bytes, reading and writing JSON, and string manipulation
- * 2 specific Hyperledger Fabric specific libraries for Smart Contracts
- */
 import (
 	"bytes"
+    "crypto/rsa"
+    "crypto/rand"
+    "crypto/x509"
 	"encoding/json"
 	"fmt"
     "strconv"
@@ -55,7 +30,8 @@ const (
 // Define the staff structure, with 7 properties.  Structure tags are used by encoding/json library
 type Staff struct {
     HKID        string      `json:"id"`
-    Name        string      `json:"name"`
+    FirstName   string      `json:"firstname"`
+    LastName    string      `json:"lastname"`
     Birth       time.Time   `json:"birthday"`
     Gender      Gender      `json:"gender"`
     Department  string      `json:"dpt"`
@@ -71,26 +47,25 @@ func (s *PrivateSmartContract) Init(APIstub shim.ChaincodeStubInterface) sc.Resp
 	return shim.Success(nil)
 }
 
-/*
- * The Invoke method is called as a result of an application request to run the Smart Contract "fabcar"
- * The calling application program has also specified the particular smart contract function to be called, with arguments
- */
 func (s *PrivateSmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
-
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
 	// Route to the appropriate handler function to interact with the ledger appropriately
     switch function {
-    case "initLedger":
+    case "initLedger": // i
         return s.initLedger(APIstub)
-    case "query":
-        return s.query(APIstub, args)
-    case "get":
-        return s.get(APIstub, args)
-    case "getAll":
-        return s.getAllStaffs(APIstub)
-    case "put":
+    case "put": // i
         return s.put(APIstub, args)
+    case "getPriKey": // q
+        return s.getPriKey(APIstub)
+    case "genPriKey": // i
+        return s.genPriKey(APIstub)
+    case "query": // q
+        return s.query(APIstub, args)
+    case "get": // q
+        return s.get(APIstub, args)
+    case "getAll": // q
+        return s.getAllStaffs(APIstub)
     }
 	return shim.Error("Invalid Smart Contract function name.")
 }
@@ -121,14 +96,14 @@ func (s *PrivateSmartContract) get(APIstub shim.ChaincodeStubInterface, args []s
  **/
 func (s *PrivateSmartContract) put(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 11 {
-		return shim.Error("Incorrect number of arguments. Expecting 11.")
+	if len(args) != 12 {
+		return shim.Error("Incorrect number of arguments. Expecting 12.")
 	}
 
     // Birth
-    birthYear, _ := strconv.Atoi(args[2])
-    birthMonth, _ := strconv.Atoi(args[3])
-    birthDay, _ := strconv.Atoi(args[4])
+    birthYear, _ := strconv.Atoi(args[3])
+    birthMonth, _ := strconv.Atoi(args[4])
+    birthDay, _ := strconv.Atoi(args[5])
     birth := time.Date (
         birthYear,
         time.Month(birthMonth),
@@ -137,11 +112,11 @@ func (s *PrivateSmartContract) put(APIstub shim.ChaincodeStubInterface, args []s
         HONGKONG,
     )
     // Gender
-    gender, _ := strconv.Atoi(args[5])
+    gender, _ := strconv.Atoi(args[6])
     // Start
-    startYear, _ := strconv.Atoi(args[8])
-    startMonth, _ := strconv.Atoi(args[9])
-    startDay, _ := strconv.Atoi(args[10])
+    startYear, _ := strconv.Atoi(args[9])
+    startMonth, _ := strconv.Atoi(args[10])
+    startDay, _ := strconv.Atoi(args[11])
     start := time.Date (
         startYear,
         time.Month(startMonth),
@@ -152,11 +127,12 @@ func (s *PrivateSmartContract) put(APIstub shim.ChaincodeStubInterface, args []s
     // Make new Staff struct
     staff := Staff{
         HKID: args[0],
-        Name: args[1],
+        FirstName: args[1],
+        LastName: args[2],
         Birth: birth,
         Gender: Gender(gender),
-        Department: args[6],
-        Position: args[7],
+        Department: args[7],
+        Position: args[8],
         Start: start,
     }
     // Make json and put into database
@@ -169,7 +145,8 @@ func (s *PrivateSmartContract) initLedger(APIstub shim.ChaincodeStubInterface) s
 	staffs := []Staff{
 		Staff{
             HKID: "0",
-            Name: "Kaihin",
+            FirstName: "Kaihin",
+            LastName: "Wong",
             Birth: time.Date(1996, time.Month(4), 25, 0,0,0,0, HONGKONG),
             Gender: Male,
             Position: "Docker", // not typo
@@ -177,7 +154,8 @@ func (s *PrivateSmartContract) initLedger(APIstub shim.ChaincodeStubInterface) s
         },
 		Staff{
             HKID: "1",
-            Name: "Dennis",
+            FirstName: "Dennis",
+            LastName: "Chau",
             Birth: time.Date(1996, time.Month(1), 1, 0, 0, 0, 0, HONGKONG),
             Gender: Male,
             Position: "Doctor",
@@ -266,6 +244,33 @@ func (s *PrivateSmartContract) getAllStaffs(APIstub shim.ChaincodeStubInterface)
 	return shim.Success(buffer.Bytes())
 }
 
+func (s *PrivateSmartContract) getPriKey(APIstub shim.ChaincodeStubInterface) sc.Response {
+    priKeyAsBytes, _ := APIstub.GetState("priKey")
+    return shim.Success(priKeyAsBytes)
+}
+
+func (s *PrivateSmartContract) genPriKey(APIstub shim.ChaincodeStubInterface) sc.Response {
+
+    priKeyAsBytes, err := APIstub.GetState("priKey")
+    if err != nil {
+        return shim.Error(err.Error())
+    }
+    if priKeyAsBytes != nil {
+        return shim.Error("Key exists")
+    }
+    reader := rand.Reader
+    bitSize := 2048
+    priKey, err := rsa.GenerateKey(reader, bitSize)
+    if err != nil {
+        return shim.Error(err.Error())
+    }
+
+    priKeyAsBytes = x509.MarshalPKCS1PrivateKey(priKey)
+    APIstub.PutState("priKey", priKeyAsBytes)
+
+    return shim.Success(nil)
+}
+
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
 	// Create a new Smart Contract
@@ -273,4 +278,12 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error creating new Smart Contract: %s", err)
 	}
+}
+
+func toChaincodeArgs(args ...string) [][]byte {
+	bargs := make([][]byte, len(args))
+	for i, arg := range args {
+		bargs[i] = []byte(arg)
+	}
+	return bargs
 }

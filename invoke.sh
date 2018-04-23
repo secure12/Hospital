@@ -11,7 +11,7 @@ Chaincode Functions:
 EOF
     for FILE in "joint/joint.go" "disjoint/disjoint.go" "github.com/hyperledger/fabric/examples/chaincode/go/enccc_example/enccc_example.go"; do
         echo $FILE
-        sed -n -e 's/^.*case.*\"\(.*\)\".*$/  - \1/p' chaincode/$FILE
+        sed -n -e 's/^.*case.*\"\(.*\)\".*i.*$/  - \1/p' chaincode/$FILE
     done
     exit 1
 fi
